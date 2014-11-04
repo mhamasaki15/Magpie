@@ -22,11 +22,11 @@ public class Magpie
  }
  
  /**
-  * Gives a response to a user statement
+  * This method will prioritize the if statements from top to bottom. 
+  * This is because the code will run the first "if" statement, and then bypass the rest of the "else if" statements.
   * 
-  * @param statement
-  *            the user statement
-  * @return a response based on the rules given
+  * When the code encounters a keyword that is present in another word (ex: "no" in "know"), it will still run that code.
+  * This is because the indexOf method only checks to see whether that string is present, not if it is a seperate word.
   */
  public String getResponse(String statement)
  {
@@ -42,12 +42,39 @@ public class Magpie
   {
    response = "Tell me more about your family.";
   }
+  else if (statement.indexOf("dog") >= 0 //if the statement contains cat or dog
+    || statement.indexOf("cat") >= 0)
+  {
+    response = "Tell me more about your pets.";
+  }
+  else if (statement.indexOf("name") >= 0)
+  {
+    response = "My name is Magpie. What is your name?";
+  }
+  else if (statement.indexOf("friend") >= 0)
+  {
+    response = "Who is your best friend? My best friend is you.";
+  }
+  else if (statement.indexOf("school") >= 0)
+  {
+    response = "Are you still in school? How old are you?";
+  }
+  else if (statement.indexOf("Mr. Landgraf") >= 0 
+    || statement.indexOf("Mr. Kiang") >= 0)
+  {
+    response = "Oh wow. Isn't he that famous Computer Science teacher?";
+  }  
+  else if (statement.trim().length() == 0) //If the trimmed statement has no length, give this response.
+  {
+    response = "Say something, please.";
+  }
   else
   {
    response = getRandomResponse();
   }
   return response;
- }
+  }
+ 
 
  /**
   * Pick a default response to use if nothing else fits.
@@ -55,7 +82,7 @@ public class Magpie
   */
  private String getRandomResponse()
  {
-  final int NUMBER_OF_RESPONSES = 4;
+  final int NUMBER_OF_RESPONSES = 6; //Added 2 more
   double r = Math.random();
   int whichResponse = (int)(r * NUMBER_OF_RESPONSES);
   String response = "";
@@ -75,6 +102,14 @@ public class Magpie
   else if (whichResponse == 3)
   {
    response = "You don't say.";
+  }
+  else if (whichResponse == 4) //2 More noncommital responses
+  {
+   response = "Wow, fascinating.";
+  }
+  else if (whichResponse == 5)
+  {
+   response = "Same.";
   }
 
   return response;
