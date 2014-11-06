@@ -1,14 +1,7 @@
 /**
  * A program to carry on conversations with a human user.
- * This is the initial version that:  
- * <ul><li>
- *       Uses indexOf to find strings
- * </li><li>
- *       Handles responding to simple words and phrases 
- * </li></ul>
- * This version uses a nested if to handle default responses.
- * @author Laurie White
- * @version April 2012
+ * @Original: Laurie White April 2012
+ * Edited by Melanie Hamasaki
  */
 public class Magpie
 {
@@ -21,46 +14,44 @@ public class Magpie
   return "Hello, let's talk.";
  }
  
+ 
+ 
  /**
   * This method will prioritize the if statements from top to bottom. 
   * This is because the code will run the first "if" statement, and then bypass the rest of the "else if" statements.
   * 
   * When the code encounters a keyword that is present in another word (ex: "no" in "know"), it will still run that code.
   * This is because the indexOf method only checks to see whether that string is present, not if it is a seperate word.
-  */
+  */ 
+  
  public String getResponse(String statement)
  {
   String response = "";
-  if (statement.indexOf("no") >= 0)
+  if (findKeyword(statement, "no", 0) >= 0)
   {
    response = "Why so negative?";
   }
-  else if (statement.indexOf("mother") >= 0
-    || statement.indexOf("father") >= 0
-    || statement.indexOf("sister") >= 0
-    || statement.indexOf("brother") >= 0)
+  else if (findKeyword(statement, "mother", 0) >= 0
+    || findKeyword(statement, "father", 0) >= 0
+    || findKeyword(statement, "sister", 0) >= 0
+    || findKeyword(statement, "brother", 0) >= 0)
   {
    response = "Tell me more about your family.";
   }
-  else if (statement.indexOf("dog") >= 0 //if the statement contains cat or dog
-    || statement.indexOf("cat") >= 0)
-  {
-    response = "Tell me more about your pets.";
-  }
-  else if (statement.indexOf("name") >= 0)
+  else if (findKeyword(statement,"name", 0) >= 0)
   {
     response = "My name is Magpie. What is your name?";
   }
-  else if (statement.indexOf("friend") >= 0)
+  else if (findKeyword(statement,"friend", 0) >= 0)
   {
     response = "Who is your best friend? My best friend is you.";
   }
-  else if (statement.indexOf("school") >= 0)
+  else if (findKeyword(statement, "school", 0) >= 0)
   {
     response = "Are you still in school? How old are you?";
   }
-  else if (statement.indexOf("Mr. Landgraf") >= 0 
-    || statement.indexOf("Mr. Kiang") >= 0)
+  else if (findKeyword(statement, "Mr. Landgraf", 0) >= 0 
+    || findKeyword(statement, "Mr. Kiang", 0) >= 0)
   {
     response = "Oh wow. Isn't he that famous Computer Science teacher?";
   }  
@@ -68,14 +59,179 @@ public class Magpie
   {
     response = "Say something, please.";
   }
-  else
+  // Responses which require transformations
+  else if (findKeyword(statement, "I want to", 0) >= 0)
   {
-   response = getRandomResponse();
+   response = transformIWantToStatement(statement);
+  }
+  else if (findKeyword(statement, "I want", 0) >= 0) //Placed AFTER "I want to" check to make sure there is no "to" afterwards.
+  {
+   response = transformIWantStatement(statement);
+  }
+    else
+  {
+   // Look for a two word (you <something> me)
+   // pattern
+   int psn = findKeyword(statement, "you", 0);
+   int psnI = findKeyword(statement, "I", 0);
+     
+   if (psn >= 0
+     && findKeyword(statement, "me", psn) >= 0)
+   {
+    response = transformYouMeStatement(statement);
+   }
+   else if (psnI >= 0
+     && findKeyword(statement, "you", psnI) >= 0)
+   {
+     response = transformIYouStatement(statement);
+   }         
+   else
+   {
+    response = getRandomResponse();
+   }
   }
   return response;
-  }
+ }
  
 
+ /**
+  * Take a statement with "I want to <something>." and transform it into 
+  * "What would it mean to <something>?"
+  * @param statement the user statement, assumed to contain "I want to"
+  * @return the transformed statement
+  */
+ private String transformIWantToStatement(String statement)
+ {
+  //  Remove the final period, if there is one
+  statement = statement.trim();
+  String lastChar = statement.substring(statement
+    .length() - 1);
+  if (lastChar.equals("."))
+  {
+   statement = statement.substring(0, statement
+     .length() - 1);
+  }
+  int psn = findKeyword (statement, "I want to", 0);
+  String restOfStatement = statement.substring(psn + 9).trim();
+  return "What would it mean to " + restOfStatement + "?";
+ }
+
+ private String transformIWantStatement(String statement) //New String method for "I want" statements.
+ {
+   statement = statement.trim();
+   String lastChar = statement.substring(statement.length() - 1);
+   if (lastChar.equals("."))
+   {
+     statement.substring(0, statement.length() - 1);
+   }
+   int psn = findKeyword (statement, "I want", 0);
+   String restOfStatement = statement.substring(psn + 6).trim(); //"I want" is 6 characters, therefor to go past the "I want," we move the substring 6 characters past.
+   return "Would you really be happy if you had " + restOfStatement + "?";
+}
+   
+ 
+ 
+ /**
+  * Take a statement with "you <something> me" and transform it into 
+  * "What makes you think that I <something> you?"
+  * @param statement the user statement, assumed to contain "you" followed by "me"
+  * @return the transformed statement
+  */
+ private String transformYouMeStatement(String statement)
+ {
+  //  Remove the final period, if there is one
+  statement = statement.trim();
+  String lastChar = statement.substring(statement
+    .length() - 1);
+  if (lastChar.equals("."))
+  {
+   statement = statement.substring(0, statement
+     .length() - 1);
+  }
+  
+  int psnOfYou = findKeyword (statement, "you", 0);
+  int psnOfMe = findKeyword (statement, "me", psnOfYou + 3);
+  
+  String restOfStatement = statement.substring(psnOfYou + 3, psnOfMe).trim();
+  return "What makes you think that I " + restOfStatement + " you?";
+ }
+ 
+ private String transformIYouStatement(String statement)
+ {
+   statement = statement.trim();
+  String lastChar = statement.substring(statement
+    .length() - 1);
+  if (lastChar.equals(".")) //Removing the period from the IYou statement.
+  {
+   statement = statement.substring(0, statement
+     .length() - 1);
+  } 
+  
+  int psnOfI = findKeyword (statement, "I", 0);
+  int psnOfYou = findKeyword (statement, "you", psnOfI + 1);
+  
+  String restOfStatement = statement.substring(psnOfI + 1, psnOfYou).trim();
+  return "Why do you " + restOfStatement + " me?"; //Note that this structure sometimes sounds weird. Example: "I don't like you" -> "Why do you don't like me"
+  //This could be improved by changing don't to not.
+ }
+
+ 
+
+ 
+ 
+ private int findKeyword(String statement, String goal,
+   int startPos)
+ {
+  String phrase = statement.trim();
+  // The only change to incorporate the startPos is in
+  // the line below
+  int psn = phrase.toLowerCase().indexOf(
+    goal.toLowerCase(), startPos);
+
+  // Refinement--make sure the goal isn't part of a
+  // word
+  while (psn >= 0)
+  {
+   // Find the string of length 1 before and after
+   // the word
+   String before = " ", after = " ";
+   if (psn > 0)
+   {
+    before = phrase.substring(psn - 1, psn)
+      .toLowerCase();
+   }
+   if (psn + goal.length() < phrase.length())
+   {
+    after = phrase.substring(
+      psn + goal.length(),
+      psn + goal.length() + 1)
+      .toLowerCase();
+   }
+
+   // If before and after aren't letters, we've
+   // found the word
+   if (((before.compareTo("a") < 0) || (before
+     .compareTo("z") > 0)) // before is not a
+           // letter
+     && ((after.compareTo("a") < 0) || (after
+       .compareTo("z") > 0)))
+   {
+    return psn;
+   }
+
+   // The last position didn't work, so let's find
+   // the next, if there is one.
+   psn = phrase.indexOf(goal.toLowerCase(),
+     psn + 1);
+
+  }
+
+  return -1;
+ }
+ 
+ 
+ 
+ 
  /**
   * Pick a default response to use if nothing else fits.
   * @return a non-committal string
