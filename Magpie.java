@@ -98,6 +98,14 @@ public class Magpie
   }
    else if (findKeyword(statement, "because", 0) >= 0) //Gets rid of these because statements and turns them into another question.
   {
+     if (findKeyword(statement, "you", 0) >= 0)
+      {
+        statement = statement.replace("you ", "I ");
+       }
+        else
+       {
+        statement = statement.replace("I ", "you ");
+       }
     response = "Is it really because " + statement.substring(findKeyword(statement, "because", 0) + 7).trim() + "?";
   }
   else if (findKeyword(statement, "you are", 0) >= 0) //For "you are" statements
