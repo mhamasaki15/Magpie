@@ -71,6 +71,14 @@ public class Magpie
   {
    response = transformIWantStatement(statement);
   }
+  else if (findKeyword(statement, "I am", 0) >= 0) //For "I am" statements
+  {
+    response = transformIAmStatement(statement);
+  }
+  else if (findKeyword(statement, "you are", 0) >= 0) //For "you are" statements
+  {
+    response = transformYouAreStatement(statement);
+  }
     else
   {
    // Look for a two word (you <something> me)
@@ -140,12 +148,40 @@ public class Magpie
   * @param statement the user statement, assumed to contain "you" followed by "me"
   * @return the transformed statement
   */
+ 
+ private String transformIAmStatement(String statement)
+ {
+   statement = statement.trim();
+   String lastChar = statement.substring(statement.length() - 1);
+  if (lastChar.equals("."))
+  {
+   statement = statement.substring(0, statement
+     .length() - 1);
+  }
+   int psnOfAm = findKeyword(statement, "am", 0);
+   statement = statement.substring(psnOfAm + 2);
+   return "Why are you " + statement.trim() + "?";
+ }
+ 
+ private String transformYouAreStatement(String statement)
+ {
+   statement = statement.trim();
+   String lastChar = statement.substring(statement.length() - 1);
+  if (lastChar.equals("."))
+  {
+   statement = statement.substring(0, statement
+     .length() - 1);
+  }
+   int psnOfare = findKeyword(statement, "are", 0);
+   statement = statement.substring(psnOfare + 3);
+   return "Why do you think I am " + statement.trim() + "?";
+ }
+ 
  private String transformYouMeStatement(String statement)
  {
   //  Remove the final period, if there is one
   statement = statement.trim();
-  String lastChar = statement.substring(statement
-    .length() - 1);
+  String lastChar = statement.substring(statement.length() - 1);
   if (lastChar.equals("."))
   {
    statement = statement.substring(0, statement
