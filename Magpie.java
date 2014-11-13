@@ -27,8 +27,30 @@ public class Magpie
   * This is because the indexOf method only checks to see whether that string is present, not if it is a seperate word.
   */ 
   
+ 
  public String getResponse(String statement)
- {
+ { 
+   
+    statement = statement.trim(); //Moved this to the beginning, to move the period if there is one.
+  String lastChar = statement.substring(statement
+    .length() - 1);
+  if (lastChar.equals("."))
+  {
+   statement = statement.substring(0, statement
+     .length() - 1);
+  }
+   
+   if (findKeyword(statement, "My", 0) >= 0)
+   {
+  statement = statement.replace("my", "your"); //Replaces "my" with "your" so sentences can be reworded as questions.
+  statement = statement.replace("My", "your");
+   }
+   else 
+   {
+  statement = statement.replace("your", "my");
+  statement = statement.replace("Your", "My");
+   }
+  
   String response = "";
   if (findKeyword(statement, "no", 0) >= 0)
   {
@@ -62,7 +84,6 @@ public class Magpie
   {
     response = "Say something, please.";
   }
-  // Responses which require transformations
   else if (findKeyword(statement, "I want to", 0) >= 0)
   {
    response = transformIWantToStatement(statement);
@@ -75,9 +96,21 @@ public class Magpie
   {
     response = transformIAmStatement(statement);
   }
+   else if (findKeyword(statement, "because", 0) >= 0) //Gets rid of these because statements and turns them into another question.
+  {
+    response = "Is it really because " + statement.substring(findKeyword(statement, "because", 0) + 7).trim() + "?";
+  }
   else if (findKeyword(statement, "you are", 0) >= 0) //For "you are" statements
   {
     response = transformYouAreStatement(statement);
+  }
+  else if (findKeyword(statement, "are", 0) >= 0) //For general "are" statements.
+  {
+   response = "Why are " + statement.trim().replace(" are ", " ").toLowerCase() + "?"; //Replacing are with nothing and puts "Why are" in the beginning of the question
+  } //I statements, is
+  else if (findKeyword(statement, "is", 0) >= 0)
+  {
+    response = "Why is " + statement.trim().replace(" is ", " ").toLowerCase() + "?";
   }
     else
   {
@@ -113,15 +146,7 @@ public class Magpie
   */
  private String transformIWantToStatement(String statement)
  {
-  //  Remove the final period, if there is one
-  statement = statement.trim();
-  String lastChar = statement.substring(statement
-    .length() - 1);
-  if (lastChar.equals("."))
-  {
-   statement = statement.substring(0, statement
-     .length() - 1);
-  }
+  
   int psn = findKeyword (statement, "I want to", 0);
   String restOfStatement = statement.substring(psn + 9).trim();
   return "What would it mean to " + restOfStatement + "?";
@@ -129,12 +154,6 @@ public class Magpie
 
  private String transformIWantStatement(String statement) //New String method for "I want" statements.
  {
-   statement = statement.trim();
-   String lastChar = statement.substring(statement.length() - 1);
-   if (lastChar.equals("."))
-   {
-     statement.substring(0, statement.length() - 1);
-   }
    int psn = findKeyword (statement, "I want", 0);
    String restOfStatement = statement.substring(psn + 6).trim(); //"I want" is 6 characters, therefor to go past the "I want," we move the substring 6 characters past.
    return "Would you really be happy if you had " + restOfStatement + "?";
@@ -151,13 +170,7 @@ public class Magpie
  
  private String transformIAmStatement(String statement)
  {
-   statement = statement.trim();
-   String lastChar = statement.substring(statement.length() - 1);
-  if (lastChar.equals("."))
-  {
-   statement = statement.substring(0, statement
-     .length() - 1);
-  }
+
    int psnOfAm = findKeyword(statement, "am", 0);
    statement = statement.substring(psnOfAm + 2);
    return "Why are you " + statement.trim() + "?";
@@ -165,13 +178,7 @@ public class Magpie
  
  private String transformYouAreStatement(String statement)
  {
-   statement = statement.trim();
-   String lastChar = statement.substring(statement.length() - 1);
-  if (lastChar.equals("."))
-  {
-   statement = statement.substring(0, statement
-     .length() - 1);
-  }
+ 
    int psnOfare = findKeyword(statement, "are", 0);
    statement = statement.substring(psnOfare + 3);
    return "Why do you think I am " + statement.trim() + "?";
@@ -179,14 +186,6 @@ public class Magpie
  
  private String transformYouMeStatement(String statement)
  {
-  //  Remove the final period, if there is one
-  statement = statement.trim();
-  String lastChar = statement.substring(statement.length() - 1);
-  if (lastChar.equals("."))
-  {
-   statement = statement.substring(0, statement
-     .length() - 1);
-  }
   
   int psnOfYou = findKeyword (statement, "you", 0);
   int psnOfMe = findKeyword (statement, "me", psnOfYou + 3);
